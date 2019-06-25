@@ -5,7 +5,7 @@ class CountUfoTypes {
         $this->db = $db;
     }
     public function getCount($params = array()) {
-	$sql = "SELECT COUNT(DISTINCT shape) AS count FROM ufo_sightings_bookeeper WHERE shape <> ''";
+	$sql = "SELECT COUNT(DISTINCT shape) AS count FROM ufo_sightings_bookeeper WHERE shape <> '' AND shape <>'unknown'";
 	if(!empty($params)){
 		$sql .= " AND";
 		foreach($params as $index=>$value){
