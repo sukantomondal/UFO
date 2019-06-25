@@ -3,10 +3,17 @@
 
 FROM centos:6
 ENV container docker
+COPY ufo-sightings /root/ufo-sightings
+ADD util/ufo-sightings.csv /root/ufo-sightings.csv
 ADD util/init_script.sh /root/init_script.sh
 ADD util/project_install.sh /root/project_install.sh
+ADD util/set_mysql_root_password.sh /root/set_mysql_root_password.sh
+ADD util/create_database_for_ufo_sightings.sh /root/create_database_for_ufo_sightings.sh
+
 
 RUN ["chmod", "+x", "/root/project_install.sh"]
+RUN ["chmod", "+x", "/root/set_mysql_root_password.sh"]
+RUN ["chmod", "+x", "/root/create_database_for_ufo_sightings.sh"]
 
 RUN yum -y install wget unzip
 RUN yum -y install httpd
