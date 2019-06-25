@@ -1,6 +1,6 @@
 <?php
 
-$app->get('/sightings/count', function ($request, $response, $args) {
+$app->get('/ufo/sightings/count', function ($request, $response, $args) {
 
 	$params = $request->getQueryParams();
 
