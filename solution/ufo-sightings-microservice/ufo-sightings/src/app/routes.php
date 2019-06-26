@@ -41,9 +41,6 @@ $app->get('/ufo/types/count', function ($request, $response, $args) {
 
 });
 
-/*
-
-EvacuationPriorities
 
 /* Question:2 Route */
 $app->get('/ufo/attack/evacuation/priorities', function ($request, $response, $args) {

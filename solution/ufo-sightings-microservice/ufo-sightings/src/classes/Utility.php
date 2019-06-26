@@ -43,8 +43,21 @@ class Utility {
 
 			switch($valid_params[$param]){
 				case 'int' :
+					if(is_int($value)){
+                                                $check_st = true;
+                                        }else if(is_string($value)){
+                                                $check_st=ctype_digit($value);
+                                        }                            
+                                        break;
 				case 'float' :
-					$check_st=is_numeric($value);		
+					if(is_float($value)){
+						$check_st = true;
+					}else if(is_string($value)){
+						$check_st=is_numeric($value);
+					}		
+					break;
+				case 'str' :
+					$check_st = is_string($value);
 					break;
 				default :
 					$check_st = false;
