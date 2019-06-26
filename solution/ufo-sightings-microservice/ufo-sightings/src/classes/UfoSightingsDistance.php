@@ -49,32 +49,21 @@ class UfoSightingsDistance {
 
  		$priority_queue = new SplPriorityQueue();
 
+		$empty_element_exists = false;
+
 		while($row = $stmt->fetch()){
 			foreach($row as $index => $value){
-				if(empty($index))
-					continue;
-				else{
-					switch($index){
-						case 'id' :
-							$row['id'] = (int) $row['id'];
-							break;
-						case 'duration_seconds' :
-							$row['duration_seconds'] = (int) $row['duration_seconds'];
-							break;
-						case 'latitude' :
-							$row['latitude'] = (float) $row['latitude'];
-							break;
-						case 'longitude' :
-                                                	$row['longitude'] = (float) $row['longitude'];
-                                                	break;
-					}
+				if(empty($value)){
+					$empty_element_exists = true;
+					break;
 				}
-
 			}
-
-			$row['distance'] = $this->calculateDistance($base_latitude, $base_longitude, $row['latitude'], $row['longitude']);
-			$result_temp_rows[] = $row;
-			$priority_queue->insert($row, $row['distance']);
+			
+			if(!$empty_element_exists){
+				$row['distance'] = $this->calculateDistance($base_latitude, $base_longitude, $row['latitude'], $row['longitude']);
+				$result_temp_rows[] = $row;
+				$priority_queue->insert($row, $row['distance']);
+			}
 		}
 	
 		//usort($result_temp_rows, array('UfoSightingsDistance','user_compare'));

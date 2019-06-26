@@ -42,31 +42,24 @@ $app->get('/ufo/types/count', function ($request, $response, $args) {
 });
 
 
+
 /* Question:2 Route */
 $app->get('/ufo/attack/evacuation/priorities', function ($request, $response, $args) {
 
         $params = $request->getQueryParams();
 
-	$country = 'us';         //default country
-	$min_priority_rank = 10; //default number
+	$valid_params = array('country'=>'str', 'min_priority_rank'=>'int');
+	$params_default_value = array('country'=>'us', 'min_priority_rank'=>10);
 
-	$valid_params = array("country", "min_priority_rank");
-
-	foreach($params as $index=>$value){
-		if(!in_array($index,$valid_params)){
-			return $this->response->withJson(array('Msg'=>"Invalid Query string: Query String should have only 'country' and 'min_priority_rank'"));
-		}	
-	}
-
-	if(array_key_exists($valid_params[0], $params))
-		$country = $params[$valid_params[0]];
-
-	if(array_key_exists($valid_params[1], $params))
-                $min_priority_rank = $params[$valid_params[1]];
+	$utility = new Utility();
+	$status = $utility->process_request_params($params, $valid_params, $params_default_value);
+	if($status !== true)
+		return $this->response->withJson($status); 
 
 	$evacaution_priorities_obj = new EvacuationPriorities($this->db);
-        $result = $evacaution_priorities_obj->getEvacuationPrioritiesByCountry($country,$min_priority_rank);
-	return $this->response->withJson($result);
+        $result = $evacaution_priorities_obj->getEvacuationPrioritiesByCountry($params);
+        return $this->response->withJson($result);
+
 });
 
 
@@ -80,7 +73,12 @@ $app->get('/ufo/sightings/distances', function ($request, $response, $args) {
 	$params_default_value = array('base_latitude' => 46.5476, 'base_longitude' => -87.3956, 'limit' => 1000, 'offset' => 0);
 
 	$utility = new Utility();
+        $status = $utility->process_request_params($params, $valid_params, $params_default_value);
+        if($status !== true)
+                return $this->response->withJson($status);
 
+
+/*
 	foreach($params as $index=>$value){
 		$status = $utility->validate_params_value($valid_params,$index, $value);
 		if($status !== true)
@@ -91,6 +89,7 @@ $app->get('/ufo/sightings/distances', function ($request, $response, $args) {
 		if(!isset($params[$index]))
 			$params[$index] = $value;			
 	}
+*/
 
 	$ufo_sightngs_distance_obj = new UfoSightingsDistance($this->db);
 	$result = $ufo_sightngs_distance_obj->getDistances($params);

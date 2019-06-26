@@ -74,6 +74,23 @@ class Utility {
 
 		return "{$param} is not a valid parameter";	
 		
+	}
+
+        
+	public function process_request_params(&$params=array(), $valid_params=array(), $params_default_value=array()){
+		
+        	foreach($params as $index=>$value){
+                	$status = $this->validate_params_value($valid_params,$index, $value);
+                	if($status !== true)
+                        	return array('Msg'=>$status);
+        	}
+
+        	foreach($params_default_value as $index=> $value){
+                	if(!isset($params[$index]))
+                        	$params[$index] = $value;
+        	}
+		return true;
+
 	}	
 
 }
