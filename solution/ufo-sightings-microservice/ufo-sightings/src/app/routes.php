@@ -5,19 +5,17 @@ $app->get('/ufo/sightings/count', function ($request, $response, $args) {
 
 	$params = $request->getQueryParams();
 
+	$valid_params = array('city' => 'str','state' => 'str','country' => 'str','shape' => 'str');
+	
 	$utility = new Utility();
-	$params_result = $utility->validate_params($params);
+        $status = $utility->process_request_params($params, $valid_params);
+        if($status !== true)
+                return $this->response->withJson($status);
 
-	/* If the parameters are given then at least one parameter should be valid. If no parameter is porvided then just count all.*/
-	if(empty($params) || (!empty($params) && !empty($params_result['valid_params'])))
-	{
-		$count_sightings_obj = new CountSightings($this->db);
-		$result = $count_sightings_obj->getCount($params_result['valid_params']);
-		$result = array_map('intval', $result);
-		return $this->response->withJson($result);
-	}	
-
-	return $this->response->withJson(array('count'=>0));
+	$count_sightings_obj = new CountSightings($this->db);
+        $result = $count_sightings_obj->getCount($params);
+        return $this->response->withJson($result);
+        
 });
 
 /* Question:1 Route */
@@ -25,20 +23,16 @@ $app->get('/ufo/types/count', function ($request, $response, $args) {
 
         $params = $request->getQueryParams();
 
-        $utility = new Utility();
-        $params_result = $utility->validate_params($params);
+	$valid_params = array('city' => 'str','state' => 'str','country' => 'str');
 
-        /* If the parameters are given then at least one parameter should be valid. If no parameter is porvided then just count all.*/
-        if(empty($params) || (!empty($params) && !empty($params_result['valid_params'])))
-        {
-                $count_ufo_types_obj = new CountUfoTypes($this->db);
-                $result = $count_ufo_types_obj->getCount($params_result['valid_params']);
-                $result = array_map('intval', $result);
-                return $this->response->withJson($result);
-        }
+ 	$utility = new Utility();
+        $status = $utility->process_request_params($params, $valid_params);
+        if($status !== true)
+                return $this->response->withJson($status);
 
-        return $this->response->withJson(array('count'=>0));
-
+	$count_ufo_types_obj = new CountUfoTypes($this->db);
+        $result = $count_ufo_types_obj->getCount($params);
+        return $this->response->withJson($result);
 });
 
 
@@ -77,23 +71,8 @@ $app->get('/ufo/sightings/distances', function ($request, $response, $args) {
         if($status !== true)
                 return $this->response->withJson($status);
 
-
-/*
-	foreach($params as $index=>$value){
-		$status = $utility->validate_params_value($valid_params,$index, $value);
-		if($status !== true)
-			return $this->response->withJson(array('Msg'=>$status));
-	}
-
-	foreach($params_default_value as $index=> $value){
-		if(!isset($params[$index]))
-			$params[$index] = $value;			
-	}
-*/
-
 	$ufo_sightngs_distance_obj = new UfoSightingsDistance($this->db);
 	$result = $ufo_sightngs_distance_obj->getDistances($params);
-
 	return $this->response->withJson($result);
 });
 
