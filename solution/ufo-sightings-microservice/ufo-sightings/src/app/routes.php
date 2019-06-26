@@ -40,3 +40,34 @@ $app->get('/ufo/types/count', function ($request, $response, $args) {
         return $this->response->withJson(array('count'=>0));
 
 });
+
+/*
+
+EvacuationPriorities
+
+/* Question:2 Route */
+$app->get('/ufo/attack/evacuation/priorities', function ($request, $response, $args) {
+
+        $params = $request->getQueryParams();
+
+	$country = 'us';         //default country
+	$min_priority_rank = 10; //default number
+
+	$valid_params = array("country", "min_priority_rank");
+
+	foreach($params as $index=>$value){
+		if(!in_array($index,$valid_params)){
+			return $this->response->withJson(array('Msg'=>"Invalid Query string: Query String should have only 'country' and 'min_priority_rank'"));
+		}	
+	}
+
+	if(array_key_exists($valid_params[0], $params))
+		$country = $params[$valid_params[0]];
+
+	if(array_key_exists($valid_params[1], $params))
+                $min_priority_rank = $params[$valid_params[1]];
+
+	$evacaution_priorities_obj = new EvacuationPriorities($this->db);
+        $result = $evacaution_priorities_obj->getEvacuationPrioritiesByCountry($country,$min_priority_rank);
+	return $this->response->withJson($result);
+});
