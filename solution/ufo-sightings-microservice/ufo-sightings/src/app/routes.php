@@ -71,3 +71,33 @@ $app->get('/ufo/attack/evacuation/priorities', function ($request, $response, $a
         $result = $evacaution_priorities_obj->getEvacuationPrioritiesByCountry($country,$min_priority_rank);
 	return $this->response->withJson($result);
 });
+
+
+
+/* Question:3 Route */
+$app->get('/ufo/sightings/distances', function ($request, $response, $args) {
+
+        $params = $request->getQueryParams();
+
+	$valid_params = array('base_latitude' => 'float', 'base_longitude' => 'float', 'limit' => 'int', 'offset' => 'int');
+	$params_default_value = array('base_latitude' => 46.5476, 'base_longitude' => -87.3956, 'limit' => 1000, 'offset' => 0);
+
+	$utility = new Utility();
+
+	foreach($params as $index=>$value){
+		$status = $utility->validate_params_value($valid_params,$index, $value);
+		if($status !== true)
+			return $this->response->withJson(array('Msg'=>$status));
+	}
+
+	foreach($params_default_value as $index=> $value){
+		if(!isset($params[$index]))
+			$params[$index] = $value;			
+	}
+
+	$ufo_sightngs_distance_obj = new UfoSightingsDistance($this->db);
+	$result = $ufo_sightngs_distance_obj->getDistances($params);
+
+	return $this->response->withJson($result);
+});
+
