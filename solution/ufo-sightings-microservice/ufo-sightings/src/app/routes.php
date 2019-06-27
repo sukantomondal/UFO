@@ -64,10 +64,11 @@ $app->get('/ufo/sightings/distances', function ($request, $response, $args) {
         $params = $request->getQueryParams();
 
 	$valid_params = array('base_latitude' => 'float', 'base_longitude' => 'float', 'limit' => 'int', 'offset' => 'int');
-	$params_default_value = array('base_latitude' => 46.5476, 'base_longitude' => -87.3956, 'limit' => 1000, 'offset' => 0);
+	$params_default_value = array('base_latitude' => 46.5476, 'base_longitude' => -87.3956);
+	$dependency_params_list = array('offset'=>'limit');
 
 	$utility = new Utility();
-        $status = $utility->process_request_params($params, $valid_params, $params_default_value);
+        $status = $utility->process_request_params($params, $valid_params, $params_default_value, $dependency_params_list);
         if($status !== true)
                 return $this->response->withJson($status);
 

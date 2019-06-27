@@ -33,27 +33,35 @@ class Utility {
 					$check_st = false;
 			}
 			
-			if($check_st){
+			if($check_st)
 				return $check_st;
-			}
-			else{
-				return "{$param} should be {$valid_params[$param]}";
-			}
+			return "'{$param}' should be a {$valid_params[$param]}";
 	
 		}
 
-		return "{$param} is not a valid parameter";	
+		return "'{$param}' is not a valid parameter";	
 		
 	}
 
         
-	public function process_request_params(&$params=array(), $valid_params=array(), $params_default_value=array()){
+	public function process_request_params(&$params=array(), $valid_params=array(), $params_default_value=array(), 
+					        $dependency_params_list = array()){
 		
         	foreach($params as $index=>$value){
                 	$status = $this->validate_params_value($valid_params,$index, $value);
                 	if($status !== true)
                         	return array('Msg'=>$status);
         	}
+
+		foreach ($dependency_params_list as $index=>$value){
+			$dependent_params = explode(",", $value);
+			if(isset($params[$index])){
+				foreach ($dependent_params as $dependent_param){
+					if(!isset($params[$dependent_param]))
+						return array("Msg" => "If '{$index}' is set, you must set '{$value}'");
+				}
+			}
+		}
 
         	foreach($params_default_value as $index=> $value){
                 	if(!isset($params[$index]))

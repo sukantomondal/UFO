@@ -1,11 +1,14 @@
 <?php
 class UfoSightingsDistance {
+    
     protected $db;
+    
     public function __construct($db) {
         $this->db = $db;
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2){
+	
 	$theta = $lon1 - $lon2;
   	$dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
   	$dist = acos($dist);
@@ -31,27 +34,28 @@ class UfoSightingsDistance {
 
 	$base_latitude = $params['base_latitude'];
 	$base_longitude = $params['base_longitude'];
-	$offset = $params['offset'];
-	$limit = $params['limit'];
-
 
 	try
 	{
-
-		$sql = "SELECT * FROM ufo_sightings_bookeeper WHERE city IS NOT NULL AND city <> '' AND 
+		$sql = "SELECT * FROM ufo_sightings_bookeeper WHERE occurred_at IS NOT NULL AND city IS NOT NULL AND city <> '' AND
 			state IS NOT NULL AND state <> '' AND country IS NOT NULL AND country <> '' AND 
 			shape IS NOT NULL AND shape <> '' AND duration_seconds <> 0 AND duration_text <> '' AND 
 			description IS NOT NULL AND description <> '' AND reported_on IS NOT NULL AND latitude IS NOT NULL 
-			AND longitude IS NOT NULL LIMIT {$offset},{$limit}";
+			AND longitude IS NOT NULL";
+		
+		if(isset($params['offset']) && isset($params['limit']))
+			$sql .= " LIMIT {$params['offset']},{$params['limit']}";
+		elseif (isset($params['limit']))
+			$sql .= " LIMIT {$params['limit']}";
+
 		$stmt = $this->db->query($sql);
         	$results = array();
 		$result_temp_rows = array();
 
- 		$priority_queue = new SplPriorityQueue();
-
-		$empty_element_exists = false;
-
 		while($row = $stmt->fetch()){
+
+			$empty_element_exists = false;
+
 			foreach($row as $index => $value){
 				if(empty($value)){
 					$empty_element_exists = true;
@@ -62,26 +66,16 @@ class UfoSightingsDistance {
 			if(!$empty_element_exists){
 				$row['distance'] = $this->calculateDistance($base_latitude, $base_longitude, $row['latitude'], $row['longitude']);
 				$result_temp_rows[] = $row;
-				$priority_queue->insert($row, $row['distance']);
 			}
 		}
-	
-		//usort($result_temp_rows, array('UfoSightingsDistance','user_compare'));
-		$priority_queue->setExtractFlags(SplPriorityQueue::EXTR_DATA);
 
-		$result_temp = array();
-		while ($priority_queue->valid()) {
-			array_unshift($result_temp,$priority_queue->current());
-    			$priority_queue->next();
-		}
+		usort($result_temp_rows, array('UfoSightingsDistance','user_compare')); //sorting rows based on distance
 
-		$results['sightings'] = $result_temp;
+		$results['sightings'] = $result_temp_rows;
 		return $results;
 	}
-
 	catch(Exception $e) {
 		return array("Msg"=>$e->getMessage());
-
 	}
 
     }
